@@ -25,8 +25,9 @@ function HealthCheck() {
   if (status === 'loading')
     return <span className="text-sm text-muted-foreground">Conectando…</span>
   if (status === 'error')
-    return <span className="text-sm text-destructive">❌ {errorMsg}</span>
+    return <span className="text-sm text-destructive">X {errorMsg}</span>
   return <span className="text-sm text-green-600">● Conectado</span>
 }
+// Esto es solo de aviso mientras se va avanzando el software
 
 export default HealthCheck
