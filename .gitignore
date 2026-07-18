@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Documentación / notas locales (no se versiona)
+/docs/
+
 # Variables de entorno (nunca se commitean; cada dev/entorno tiene la suya)
 .env
 .env.*
