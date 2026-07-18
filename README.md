@@ -68,11 +68,3 @@ src/
 
 **Capa de API:** todas las llamadas pasan por `src/api/client.js` (único lugar con `fetch()`). Ahí viven la URL base, los headers, el manejo de errores y la lectura del `detail` de FastAPI. Si más adelante se agrega autenticación, se toca solo ese archivo.
 
-## Documentación
-
-Documentación técnica adicional en [`docs/`](./docs):
-
-- `API-V2-COMPLETA.md` — referencia de la API
-- `FLUJO-REFERENCIA.md` — flujos de la aplicación
-- `FASE-0.md` — notas de la fase inicial
-- `MIGRACION-V3-SIN-CUENTA.md` — notas de migración
