@@ -26,7 +26,7 @@ function HealthCheck() {
     return <span className="text-sm text-muted-foreground">Conectando…</span>
   if (status === 'error')
     return <span className="text-sm text-destructive">❌ {errorMsg}</span>
-  return <span className="text-sm text-green-600">● Backend conectado</span>
+  return <span className="text-sm text-green-600">● Conectado</span>
 }
 
 export default HealthCheck
