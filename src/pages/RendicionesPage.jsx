@@ -211,12 +211,12 @@ function RendicionesPage() {
     <>
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>Rendiciones</CardTitle>
               <CardDescription>Historial de rendiciones de los choferes</CardDescription>
             </div>
-            <Button onClick={abrirModalRendicion}>Nueva rendición</Button>
+            <Button onClick={abrirModalRendicion} className="w-full sm:w-auto">Nueva rendición</Button>
           </div>
         </CardHeader>
         <CardContent>

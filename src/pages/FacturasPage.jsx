@@ -114,16 +114,16 @@ function FacturasPage() {
     <>
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>Facturas de proveedor</CardTitle>
               <CardDescription>Ingresos de stock registrados</CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={refetch} disabled={loading}>
+              <Button variant="outline" onClick={refetch} disabled={loading} className="flex-1 sm:flex-none">
                 Actualizar
               </Button>
-              <Button onClick={abrirModalNuevo} disabled={ordenados.length === 0}>
+              <Button onClick={abrirModalNuevo} disabled={ordenados.length === 0} className="flex-1 sm:flex-none">
                 Nueva factura
               </Button>
             </div>

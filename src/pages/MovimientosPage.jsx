@@ -32,12 +32,12 @@ function MovimientosPage() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Movimientos de inventario</CardTitle>
             <CardDescription>Kardex completo, más recientes primero</CardDescription>
           </div>
-          <Button variant="outline" onClick={refetch} disabled={loading}>
+          <Button variant="outline" onClick={refetch} disabled={loading} className="w-full sm:w-auto">
             Actualizar
           </Button>
         </div>
