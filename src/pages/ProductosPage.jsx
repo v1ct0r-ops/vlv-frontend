@@ -22,12 +22,13 @@ import {
 } from '@/components/ui/card'
 import {
   Table,
-  TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import FadeIn from '@/components/motion/FadeIn'
+import { StaggerTableBody, StaggerTableRow } from '@/components/motion/StaggerList'
 import {
   Dialog,
   DialogContent,
@@ -88,16 +89,17 @@ function ProductosPage() {
 
   return (
     <>
+      <FadeIn>
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>Productos</CardTitle>
               <CardDescription>
                 Los 5 formatos de gas GLP — stock, precio y comisión por unidad
               </CardDescription>
             </div>
-            <Button variant="outline" onClick={refetch} disabled={loading}>
+            <Button variant="outline" onClick={refetch} disabled={loading} className="w-full sm:w-auto">
               Actualizar
             </Button>
           </div>
@@ -140,11 +142,11 @@ function ProductosPage() {
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <StaggerTableBody>
                 {productos.map((p) => (
                   // key: React la necesita para saber qué fila cambió sin
                   // repintar toda la lista. Siempre el id del dato, nunca el índice.
-                  <TableRow key={p.id}>
+                  <StaggerTableRow key={p.id}>
                     <TableCell className="font-medium">{p.formato}</TableCell>
                     <TableCell>{p.nombre}</TableCell>
                     <TableCell className="text-right">{p.kg_por_unidad}</TableCell>
@@ -164,13 +166,14 @@ function ProductosPage() {
                         Editar
                       </Button>
                     </TableCell>
-                  </TableRow>
+                  </StaggerTableRow>
                 ))}
-              </TableBody>
+              </StaggerTableBody>
             </Table>
           )}
         </CardContent>
       </Card>
+      </FadeIn>
 
       <Dialog
         open={!!productoEditando}

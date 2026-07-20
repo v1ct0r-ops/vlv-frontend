@@ -7,6 +7,40 @@
 
 const API_URL = import.meta.env.VITE_API_URL
 
+// ─── SESIÓN / TOKEN ──────────────────────────────────────────────────────────
+// Único lugar del proyecto que conoce el token. Se guarda en memoria (rápido)
+// y se espeja en sessionStorage para sobrevivir un F5. Usamos sessionStorage y
+// NO localStorage: muere al cerrar la pestaña y reduce la exposición a XSS
+// (lo recomienda el contrato de la API).
+const TOKEN_KEY = 'vlv_token'
+let authToken = sessionStorage.getItem(TOKEN_KEY) || null
+
+export function setToken(token) {
+  authToken = token
+  if (token) sessionStorage.setItem(TOKEN_KEY, token)
+  else sessionStorage.removeItem(TOKEN_KEY)
+}
+
+export function getToken() {
+  return authToken
+}
+
+export function clearToken() {
+  setToken(null)
+}
+
+// Cuando la API responde 401 (token ausente/expirado), este cliente NO sabe de
+// React ni de rutas. Limpia el token y avisa por un evento global; el
+// AuthContext lo escucha y decide redirigir a /login sin romper el SPA.
+const SESION_EXPIRADA = 'vlv:sesion-expirada'
+function notificarSesionExpirada() {
+  window.dispatchEvent(new CustomEvent(SESION_EXPIRADA))
+}
+export function onSesionExpirada(handler) {
+  window.addEventListener(SESION_EXPIRADA, handler)
+  return () => window.removeEventListener(SESION_EXPIRADA, handler)
+}
+
 // Los PDFs no pasan por `request()`: no son JSON, el navegador los descarga
 // o los abre directo. Los servicios que exponen un PDF arman la URL con esto.
 export function buildUrl(path) {
@@ -49,6 +83,12 @@ async function request(path, { body, ...options } = {}) {
     config.headers = { 'Content-Type': 'application/json', ...options.headers }
   }
 
+  // Autenticación: si hay token, va en cada request protegido. El backend
+  // resuelve la empresa desde el token (multi-tenant) — nunca mandamos empresa_id.
+  if (authToken) {
+    config.headers = { ...config.headers, Authorization: `Bearer ${authToken}` }
+  }
+
   let res
   try {
     res = await fetch(`${API_URL}${path}`, config)
@@ -63,6 +103,13 @@ async function request(path, { body, ...options } = {}) {
       bodyError = await res.json()
     } catch {
       // el body no era JSON (ej: un 500 con HTML) — seguimos con el mensaje genérico
+    }
+    // 401 = token ausente/inválido/expirado → cerramos sesión y avisamos al
+    // árbol de React. OJO: el 403 (rol insuficiente / desactivado) NO desloguea;
+    // se propaga como ApiError normal para mostrar "sin permisos".
+    if (res.status === 401) {
+      clearToken()
+      notificarSesionExpirada()
     }
     throw new ApiError(extraerDetail(bodyError, res.status), res.status)
   }
