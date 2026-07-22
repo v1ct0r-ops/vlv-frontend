@@ -1,8 +1,8 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// CAPA 2: SERVICIO DEL RECURSO "FACTURAS" (ingreso de stock por proveedor)
-// ─────────────────────────────────────────────────────────────────────────────
 
-import { api, buildUrl } from './client'
+// CAPA 2: SERVICIO DEL RECURSO "FACTURAS" (ingreso de stock por proveedor)
+
+
+import { api, download } from './client'
 
 // POST /inventario/facturas → registra la factura y sube stock.
 // Transacción todo-o-nada: si un producto_id es inválido, la API responde 400
@@ -21,7 +21,7 @@ export function getFactura(id) {
   return api.get(`/inventario/facturas/${id}`)
 }
 
-// El PDF no se "pide" con fetch+json: se abre/descarga directo.
-export function pdfFacturaUrl(id) {
-  return buildUrl(`/inventario/facturas/${id}/pdf`)
+
+export function descargarFacturaPdf(id) {
+  return download(`/inventario/facturas/${id}/pdf`,`factura_${id}.pdf`)
 }

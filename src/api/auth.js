@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// CAPA 2: SERVICIO DE AUTENTICACIÓN
+//  SERVICIO DE AUTENTICACIÓN
 // Una función por endpoint. `/me` es un GET normal y va por el cliente central.
 // `/token` es el único caso especial del proyecto: OAuth2 password flow, o sea
 // application/x-www-form-urlencoded (NO json) y el email viaja en `username`.

@@ -1,9 +1,9 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// CAPA 1: EL CLIENTE HTTP CENTRAL
+
+//  EL CLIENTE HTTP CENTRAL
 // Único archivo del proyecto donde se llama a fetch(). Todo pasa por aquí:
 // URL base, headers, chequeo de errores y lectura del `detail` de FastAPI.
 // Si mañana agregas autenticación (un token en los headers), lo tocas SOLO aquí.
-// ─────────────────────────────────────────────────────────────────────────────
+
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -41,10 +41,36 @@ export function onSesionExpirada(handler) {
   return () => window.removeEventListener(SESION_EXPIRADA, handler)
 }
 
-// Los PDFs no pasan por `request()`: no son JSON, el navegador los descarga
-// o los abre directo. Los servicios que exponen un PDF arman la URL con esto.
+// Los servicios que exponen un PDF arman la URL con esto.
 export function buildUrl(path) {
   return `${API_URL}${path}`
+}
+
+export async function download(path, filename) {
+  const config = {}
+  if (authToken) config.headers = { Authorization: `Bearer ${authToken}` }
+
+  let res
+  try {
+    res = await fetch(`${API_URL}${path}`, config)
+  } catch {
+    throw new ApiError('No se pudo conectar con el servidor.', 0)
+  }
+
+  if (!res.ok) {
+    if (res.status === 401) { clearToken(); notificarSesionExpirada() }
+    throw new ApiError(`Error ${res.status} al descargar`, res.status)
+  }
+
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)   // URL temporal en memoria del navegador
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename                   // fuerza descarga con este nombre
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)                // libera la memoria del blob
 }
 
 // Error propio para distinguir "falló la API" de cualquier otro error de JS.
