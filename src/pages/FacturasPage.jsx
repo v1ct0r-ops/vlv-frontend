@@ -9,7 +9,7 @@ import { useFacturas } from '@/hooks/useFacturas'
 import { useFacturaDetalle } from '@/hooks/useFacturaDetalle'
 import { useProductos } from '@/hooks/useProductos'
 import { productosOrdenados } from '@/lib/productos'
-import { pdfFacturaUrl } from '@/api/inventario'
+import { descargarFacturaPdf } from '@/api/inventario'
 import { formatoCLP, formatoFecha } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -58,6 +58,7 @@ function FacturasPage() {
   const [guardando, setGuardando] = useState(false)
   const [errorFormulario, setErrorFormulario] = useState(null)
   const [facturaCreada, setFacturaCreada] = useState(null)
+  const [errorDescarga, setErrorDescarga] = useState(null)
 
   const [idSeleccionado, setIdSeleccionado] = useState(null)
   const { factura: detalle, loading: cargandoDetalle } = useFacturaDetalle(idSeleccionado)
@@ -107,6 +108,15 @@ function FacturasPage() {
       setErrorFormulario(err.message)
     } finally {
       setGuardando(false)
+    }
+  }
+
+  async function descargarPdf(id) {
+    setErrorDescarga(null)
+    try {
+      await descargarFacturaPdf(id)
+    } catch (e) {
+      setErrorDescarga(e.message)
     }
   }
 
@@ -293,11 +303,12 @@ function FacturasPage() {
               </li>
             ))}
           </ul>
+          {errorDescarga && <p className="text-sm text-destructive">⚠ {errorDescarga}</p>}
           <DialogFooter>
             <DialogClose render={<Button variant="outline" type="button" />}>Cerrar</DialogClose>
             <Button
               type="button"
-              onClick={() => window.open(pdfFacturaUrl(facturaCreada.id), '_blank')}
+              onClick={() => descargarPdf(facturaCreada.id)}
             >
               Descargar PDF
             </Button>
@@ -334,11 +345,11 @@ function FacturasPage() {
               </p>
             </>
           )}
-
+          {errorDescarga && <p className="text-sm text-destructive">⚠ {errorDescarga}</p>}
           <DialogFooter>
             <DialogClose render={<Button variant="outline" type="button" />}>Cerrar</DialogClose>
             {idSeleccionado && (
-              <Button type="button" onClick={() => window.open(pdfFacturaUrl(idSeleccionado), '_blank')}>
+              <Button type="button" onClick={() => descargarPdf((idSeleccionado))}>
                 Descargar PDF
               </Button>
             )}

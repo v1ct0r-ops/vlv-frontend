@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// CAPA 4: LA PÁGINA — historial de rendiciones + registrar una rendición nueva.
+// LA PÁGINA — historial de rendiciones + registrar una rendición nueva.
 // Desde v3 la rendición es un documento independiente: ya no existe la "cuenta
 // del chofer" (recepciones acumuladas). El chofer se identifica solo por
 // nombre al rendir, sin ningún paso previo.
@@ -7,7 +7,7 @@
 // ventas), cada una con su propia paginación.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useMemo, useState } from 'react'
+import { use, useMemo, useState } from 'react'
 import { useProductos } from '@/hooks/useProductos'
 import { useRendiciones } from '@/hooks/useRendiciones'
 import { useRendicionesChofer } from '@/hooks/useRendicionesChofer'
@@ -16,7 +16,7 @@ import { useRendir } from '@/hooks/useRendir'
 import { useChoferesSugeridos } from '@/hooks/useChoferesSugeridos'
 import { useDashboardChofer } from '@/hooks/useDashboardChofer'
 import { productosOrdenados } from '@/lib/productos'
-import { pdfRendicionUrl } from '@/api/rendiciones'
+import { descargarRendicionPdf } from '@/api/rendiciones'
 import { formatoCLP, formatoFecha } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -144,6 +144,7 @@ function RendicionesPage() {
   const [observaciones, setObservaciones] = useState('')
   const [errorRendicionForm, setErrorRendicionForm] = useState(null)
   const { rendir, enviando, resultado, limpiarResultado } = useRendir()
+  const [ errorDescarga, setErrorDescarga ] = useState(null)
 
   function abrirModalRendicion() {
     setNombreRendicion('')
@@ -204,6 +205,15 @@ function RendicionesPage() {
       if (nombre === nombreBuscado) porChofer.refetch()
     } catch (err) {
       setErrorRendicionForm(err.message)
+    }
+  }
+
+  async function descargarPdf(id) {
+    setErrorDescarga(null)
+    try {
+      await descargarRendicionPdf(id)
+    } catch (e) {
+      setErrorDescarga(e.message)
     }
   }
 
@@ -451,11 +461,11 @@ function RendicionesPage() {
               </div>
             </>
           )}
-
+          {errorDescarga && <p className="text-sm text-destructive">⚠ {errorDescarga}</p>}
           <DialogFooter>
             <DialogClose render={<Button variant="outline" type="button" />}>Cerrar</DialogClose>
             {idSeleccionado && (
-              <Button type="button" onClick={() => window.open(pdfRendicionUrl(idSeleccionado), '_blank')}>
+              <Button type="button" onClick={() => descargarPdf((idSeleccionado))}>
                 Descargar PDF
               </Button>
             )}
@@ -600,9 +610,10 @@ function RendicionesPage() {
               <div className="flex justify-between border-t pt-1 font-semibold"><span>Efectivo a rendir</span><span>{formatoCLP(resultado.efectivo_a_rendir)}</span></div>
             </div>
           )}
+          {errorDescarga && <p className="text-sm text-destructive">⚠ {errorDescarga}</p>}
           <DialogFooter>
             <DialogClose render={<Button variant="outline" type="button" />}>Cerrar</DialogClose>
-            <Button type="button" onClick={() => window.open(pdfRendicionUrl(resultado.id), '_blank')}>
+            <Button type="button" onClick={() => descargarPdf((resultado.id))}>
               Descargar PDF
             </Button>
           </DialogFooter>

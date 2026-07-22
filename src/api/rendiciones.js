@@ -1,12 +1,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// CAPA 2: SERVICIO DEL RECURSO "RENDICIONES" (el formulario principal)
+// SERVICIO DEL RECURSO "RENDICIONES" (el formulario principal)
 // La rendición es un documento independiente (v3, ya no depende de una
 // "cuenta" previa): el chofer se identifica solo por nombre y el backend
 // calcula todo el desglose (comisión, efectivo a rendir) — el frontend
 // nunca recalcula.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { api, buildUrl } from './client'
+import { api, download } from './client'
 
 // POST /rendiciones/chofer/{nombre} → registra la rendición directamente.
 // Si cualquier línea falla (ej: stock insuficiente), la API hace rollback
@@ -40,6 +40,6 @@ export function getRendicion(id) {
   return api.get(`/rendiciones/${id}`)
 }
 
-export function pdfRendicionUrl(id) {
-  return buildUrl(`/rendiciones/${id}/pdf`)
+export function descargarRendicionPdf(id) {
+  return download(`/rendiciones/${id}/pdf`, `rendicion_${id}.pdf`)
 }
