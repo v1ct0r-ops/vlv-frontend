@@ -3,13 +3,17 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { LogOut, Menu, X } from 'lucide-react'
 import HealthCheck from '@/components/HealthCheck'
 import { useAuth } from '@/auth/AuthContext'
+import { ROLES, ROLES_BACKOFFICE } from '@/auth/roles'
 import { Button } from '@/components/ui/button'
 
+// Cada enlace declara qué roles lo ven. Misma fuente de verdad que el gate de
+// rutas (ROLES_BACKOFFICE): nav y ProtectedRoute nunca se desincronizan.
 const ENLACES_NAV = [
-  { to: '/productos', label: 'Productos' },
-  { to: '/facturas', label: 'Facturas' },
-  { to: '/rendiciones', label: 'Rendiciones' },
-  { to: '/movimientos', label: 'Movimientos' },
+  { to: '/productos', label: 'Productos', roles: ROLES_BACKOFFICE },
+  { to: '/facturas', label: 'Facturas', roles: ROLES_BACKOFFICE },
+  { to: '/rendiciones', label: 'Rendiciones', roles: ROLES_BACKOFFICE },
+  { to: '/movimientos', label: 'Movimientos', roles: ROLES_BACKOFFICE },
+  { to: '/chofer/precios', label: 'Precios', roles: [ROLES.CHOFER, ROLES.ADMIN] },
 ]
 
 // Header del layout privado. En ≥ md muestra la nav horizontal + info de usuario.
@@ -18,6 +22,9 @@ function Header() {
   const { usuario, cerrarSesion } = useAuth()
   const navigate = useNavigate()
   const [menuAbierto, setMenuAbierto] = useState(false)
+
+  // Solo los enlaces que le corresponden al rol del usuario logueado.
+  const enlacesVisibles = ENLACES_NAV.filter((e) => e.roles.includes(usuario?.rol))
 
   function handleLogout() {
     cerrarSesion()
@@ -38,7 +45,7 @@ function Header() {
             <h1 className="text-lg font-semibold">VLV — Gestión de gas</h1>
             {/* Nav horizontal: solo en ≥ md */}
             <nav className="hidden gap-4 text-sm md:flex">
-              {ENLACES_NAV.map(({ to, label }) => (
+              {enlacesVisibles.map(({ to, label }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -86,7 +93,7 @@ function Header() {
         {menuAbierto && (
           <div className="flex flex-col gap-4 border-t py-4 md:hidden">
             <nav className="flex flex-col gap-3 text-sm">
-              {ENLACES_NAV.map(({ to, label }) => (
+              {enlacesVisibles.map(({ to, label }) => (
                 <NavLink
                   key={to}
                   to={to}

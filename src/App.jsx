@@ -4,8 +4,11 @@ import ProductosPage from '@/pages/ProductosPage'
 import FacturasPage from '@/pages/FacturasPage'
 import RendicionesPage from '@/pages/RendicionesPage'
 import MovimientosPage from '@/pages/MovimientosPage'
+import ChoferPreciosPage from '@/pages/ChoferPreciosPage'
 import LoginPage from '@/pages/LoginPage'
 import ProtectedRoute from '@/auth/ProtectedRoute'
+import { useAuth } from '@/auth/AuthContext'
+import { ROLES, ROLES_BACKOFFICE, rutaInicial } from '@/auth/roles'
 
 // Layout privado para las páginas protegidas: header con nav responsive + main.
 function LayoutPrivado({ children }) {
@@ -18,16 +21,25 @@ function LayoutPrivado({ children }) {
 }
 
 // Las rutas privadas comparten layout y van todas detrás del gate de sesión.
+// Cada ruta declara qué roles la pueden ver; "/" y "*" mandan a la home del rol.
 function AppPrivada() {
+  const { usuario } = useAuth() // garantizado no-null: estamos dentro del gate de auth
+
   return (
     <LayoutPrivado>
       <Routes>
-        <Route path="/" element={<Navigate to="/productos" replace />} />
-        <Route path="/productos" element={<ProductosPage />} />
-        <Route path="/facturas" element={<FacturasPage />} />
-        <Route path="/rendiciones" element={<RendicionesPage />} />
-        <Route path="/movimientos" element={<MovimientosPage />} />
-        <Route path="*" element={<Navigate to="/productos" replace />} />
+        <Route path="/" element={<Navigate to={rutaInicial(usuario.rol)} replace />} />
+
+        {/* Back-office: admin + operador */}
+        <Route path="/productos" element={<ProtectedRoute rolesPermitidos={ROLES_BACKOFFICE}><ProductosPage /></ProtectedRoute>} />
+        <Route path="/facturas" element={<ProtectedRoute rolesPermitidos={ROLES_BACKOFFICE}><FacturasPage /></ProtectedRoute>} />
+        <Route path="/rendiciones" element={<ProtectedRoute rolesPermitidos={ROLES_BACKOFFICE}><RendicionesPage /></ProtectedRoute>} />
+        <Route path="/movimientos" element={<ProtectedRoute rolesPermitidos={ROLES_BACKOFFICE}><MovimientosPage /></ProtectedRoute>} />
+
+        {/* Chofer (admin también, útil para soporte) */}
+        <Route path="/chofer/precios" element={<ProtectedRoute rolesPermitidos={[ROLES.CHOFER, ROLES.ADMIN]}><ChoferPreciosPage /></ProtectedRoute>} />
+
+        <Route path="*" element={<Navigate to={rutaInicial(usuario.rol)} replace />} />
       </Routes>
     </LayoutPrivado>
   )
