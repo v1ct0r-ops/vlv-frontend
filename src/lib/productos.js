@@ -21,3 +21,18 @@ export function productosOrdenados(productos) {
   const mapa = mapaPorFormato(productos)
   return ORDEN_FORMATOS.map((formato) => mapa.get(formato)).filter(Boolean)
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FÓRMULA DE PRECIO — fuente única de verdad en el front.
+// El backend aplica exactamente la misma regla (venta = compra + ganancia), pero
+// el admin necesita ver el resultado EN VIVO mientras escribe, antes de guardar.
+// Por eso la fórmula vive acá: función pura (sin React, sin estado, sin efectos),
+// así se puede testear sola y cualquier pantalla la reusa sin duplicar la regla.
+//
+// `Number(x) || 0`: los inputs de un formulario siempre son strings, y un campo
+// vacío ('') o a medio escribir ('-') da NaN. NaN contamina toda suma. Lo
+// colapsamos a 0 para que el precio mostrado nunca sea "NaN".
+// ─────────────────────────────────────────────────────────────────────────────
+export function calcularPrecioVenta(precioCompra, ganancia) {
+  return (Number(precioCompra) || 0) + (Number(ganancia) || 0)
+}

@@ -7,7 +7,7 @@
 // ventas), cada una con su propia paginación.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { use, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useProductos } from '@/hooks/useProductos'
 import { useRendiciones } from '@/hooks/useRendiciones'
 import { useRendicionesChofer } from '@/hooks/useRendicionesChofer'
@@ -60,7 +60,7 @@ function ventaVacia(producto) {
     producto_id: producto.id,
     formato: producto.formato,
     cantidad: '',
-    precio_unitario: producto.precio_unitario,
+    precio_unitario: producto.precio_venta,
   }
 }
 
