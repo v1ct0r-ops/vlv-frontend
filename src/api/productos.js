@@ -11,7 +11,10 @@
 import { api } from './client'
 
 // GET /productos/ → ProductoRead[] (máximo 5, sin paginación)
-// { id, nombre, formato, precio_unitario, stock_actual, kg_por_unidad, comision_unitaria }
+// La forma depende del ROL (el backend filtra):
+//   admin/operador: { id, nombre, formato, precio_compra, ganancia, precio_venta,
+//                     stock_actual, kg_por_unidad, comision_unitaria, empresa_id }
+//   chofer:         { id, formato, precio_venta }  ← oculta costo/margen/comisión
 export function getProductos() {
   return api.get('/productos/')
 }
@@ -22,8 +25,11 @@ export function getProducto(id) {
 }
 
 // PUT /productos/{id} → actualización PARCIAL. Envía solo los campos a cambiar
-// (nombre, precio_unitario, stock_actual, comision_unitaria). El `formato`
-// no se puede cambiar y no se manda.
+// (nombre, precio_compra, ganancia, precio_venta, stock_actual, comision_unitaria).
+// El `formato` no se puede cambiar y no se manda.
+// Regla de precio en el back:
+//   - mandás precio_compra y/o ganancia SIN precio_venta → back calcula venta = compra + ganancia.
+//   - mandás precio_venta explícito → override manual, gana.
 export function updateProducto(id, datosParciales) {
   return api.put(`/productos/${id}`, datosParciales)
 }
